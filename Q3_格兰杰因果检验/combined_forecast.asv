@@ -1,0 +1,31 @@
+function [Yp,forecast]= combined_forecast(ts_data, forecast_years,c)
+forecast = [];
+for i = 1:1
+    %数据
+    X = 1:length(ts_data);
+    y = ts_data;
+    %线性模型
+    [fitresult, ~] = fit(X', y','poly1');
+    linear_forecast =fitresult(X(end)+1);
+    gm_forecast = GM_1_1(y,c,1);
+    gm_forecast=gm_forecast(end);
+    combined = (linear_forecast + gm_forecast) / 2;
+    forecast = [forecast, combined];
+    for j = 1:forecast_years-1
+        X = [X  X(end)+1];
+        y = [y  combined];
+        [fitresult, ~] = fit(X', y','poly1');
+        linear_forecast =fitresult(X(end)+1);
+        gm_forecast = GM_1_1(y,c,1);
+        gm_forecast=gm_forecast(end);
+        combined = (linear_forecast + gm_forecast) / 2;
+        forecast = [forecast, combined];
+    end
+    Yp_linear=fitresult(1:length(ts_data));
+    Yp_gm=GM_1_1(        ,c,0);
+    Yp=(Yp_linear + Yp_gm) / 2;
+
+
+
+end
+end
